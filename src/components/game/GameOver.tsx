@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { RotateCcw, Trophy, Target, Flame } from "lucide-react";
+import { RotateCcw, Trophy, Target, Flame, GraduationCap } from "lucide-react";
 
 interface GameOverProps {
   score: number;
   highScore: number;
   questionsAnswered: number;
   maxStreak: number;
+  grade: number;
   onRestart: () => void;
 }
 
@@ -14,6 +15,7 @@ export const GameOver = ({
   highScore,
   questionsAnswered,
   maxStreak,
+  grade,
   onRestart,
 }: GameOverProps) => {
   const isNewHighScore = score >= highScore && score > 0;
@@ -72,22 +74,31 @@ export const GameOver = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-card/50 rounded-xl p-4 border border-border/50">
-            <Target className="w-5 h-5 text-primary mx-auto mb-2" />
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-card/50 rounded-xl p-3 border border-border/50">
+            <GraduationCap className="w-5 h-5 text-primary mx-auto mb-1" />
+            <p className="text-muted-foreground text-xs uppercase tracking-wider">
+              Grade
+            </p>
+            <p className="font-mono text-xl font-bold text-foreground">
+              {grade}
+            </p>
+          </div>
+          <div className="bg-card/50 rounded-xl p-3 border border-border/50">
+            <Target className="w-5 h-5 text-primary mx-auto mb-1" />
             <p className="text-muted-foreground text-xs uppercase tracking-wider">
               Answered
             </p>
-            <p className="font-mono text-2xl font-bold text-foreground">
+            <p className="font-mono text-xl font-bold text-foreground">
               {questionsAnswered}
             </p>
           </div>
-          <div className="bg-card/50 rounded-xl p-4 border border-border/50">
-            <Flame className="w-5 h-5 text-error mx-auto mb-2" />
+          <div className="bg-card/50 rounded-xl p-3 border border-border/50">
+            <Flame className="w-5 h-5 text-error mx-auto mb-1" />
             <p className="text-muted-foreground text-xs uppercase tracking-wider">
-              Best Streak
+              Streak
             </p>
-            <p className="font-mono text-2xl font-bold text-foreground">
+            <p className="font-mono text-xl font-bold text-foreground">
               {maxStreak}
             </p>
           </div>
