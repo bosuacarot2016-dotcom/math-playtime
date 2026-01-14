@@ -8,8 +8,8 @@ import { AnswerInput } from "@/components/game/AnswerInput";
 import { GameOver } from "@/components/game/GameOver";
 
 const Index = () => {
-  const { gameState, startGame, submitAnswer } = useGameLogic();
-  const { status, score, streak, highScore, timeLeft, currentProblem, feedback, questionsAnswered, maxStreak } = gameState;
+  const { gameState, startGame, submitAnswer, setGrade } = useGameLogic();
+  const { status, score, streak, highScore, timeLeft, currentProblem, feedback, questionsAnswered, maxStreak, grade } = gameState;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -22,7 +22,12 @@ const Index = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <StartScreen highScore={highScore} onStart={startGame} />
+              <StartScreen 
+                highScore={highScore} 
+                grade={grade}
+                onSelectGrade={setGrade}
+                onStart={startGame} 
+              />
             </motion.div>
           )}
 
@@ -33,7 +38,7 @@ const Index = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <ScoreDisplay score={score} streak={streak} highScore={highScore} />
+              <ScoreDisplay score={score} streak={streak} highScore={highScore} grade={grade} />
               <Timer timeLeft={timeLeft} maxTime={10} />
               <Problem
                 num1={currentProblem.num1}
@@ -60,6 +65,7 @@ const Index = () => {
                 highScore={highScore}
                 questionsAnswered={questionsAnswered}
                 maxStreak={maxStreak}
+                grade={grade}
                 onRestart={startGame}
               />
             </motion.div>
