@@ -27,213 +27,217 @@ const TIME_BONUS = 2;
 const STREAK_MULTIPLIER = 0.5;
 
 const generateProblem = (grade: number): Problem => {
-  let operators: Operator[];
   let num1: number, num2: number, answer: number;
   let operator: Operator;
 
-  // Define operators and number ranges based on grade
+  // Kiến thức toán theo chương trình Việt Nam
   switch (grade) {
     case 1:
-      // Simple addition only, 1-10
-      operators = ["+"];
-      operator = "+";
-      num1 = Math.floor(Math.random() * 10) + 1;
-      num2 = Math.floor(Math.random() * 10) + 1;
-      answer = num1 + num2;
+      // Lớp 1: Cộng trừ trong phạm vi 10
+      operator = Math.random() > 0.5 ? "+" : "-";
+      if (operator === "+") {
+        num1 = Math.floor(Math.random() * 9) + 1;
+        num2 = Math.floor(Math.random() * (10 - num1)) + 1;
+        answer = num1 + num2;
+      } else {
+        num1 = Math.floor(Math.random() * 9) + 2;
+        num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+        answer = num1 - num2;
+      }
       break;
 
     case 2:
-      // Addition and subtraction, 1-20
-      operators = ["+", "-"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
+      // Lớp 2: Cộng trừ trong phạm vi 100, bảng nhân 2, 3, 4, 5
+      operator = ["+", "-", "×"][Math.floor(Math.random() * 3)] as Operator;
       if (operator === "+") {
-        num1 = Math.floor(Math.random() * 20) + 1;
-        num2 = Math.floor(Math.random() * 20) + 1;
+        num1 = Math.floor(Math.random() * 50) + 1;
+        num2 = Math.floor(Math.random() * (100 - num1)) + 1;
         answer = num1 + num2;
-      } else {
-        num1 = Math.floor(Math.random() * 20) + 1;
+      } else if (operator === "-") {
+        num1 = Math.floor(Math.random() * 99) + 2;
         num2 = Math.floor(Math.random() * num1) + 1;
         answer = num1 - num2;
+      } else {
+        num1 = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+        num2 = Math.floor(Math.random() * 10) + 1;
+        answer = num1 * num2;
       }
       break;
 
     case 3:
-      // Add, subtract, basic multiply (1-5)
-      operators = ["+", "-", "×"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
+      // Lớp 3: Bảng nhân chia đến 9, cộng trừ trong 1000
+      operator = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)] as Operator;
       if (operator === "+") {
-        num1 = Math.floor(Math.random() * 25) + 1;
-        num2 = Math.floor(Math.random() * 25) + 1;
+        num1 = Math.floor(Math.random() * 500) + 1;
+        num2 = Math.floor(Math.random() * (1000 - num1)) + 1;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = Math.floor(Math.random() * 25) + 1;
+        num1 = Math.floor(Math.random() * 999) + 2;
         num2 = Math.floor(Math.random() * num1) + 1;
         answer = num1 - num2;
-      } else {
-        num1 = Math.floor(Math.random() * 5) + 1;
-        num2 = Math.floor(Math.random() * 5) + 1;
+      } else if (operator === "×") {
+        num1 = Math.floor(Math.random() * 9) + 2;
+        num2 = Math.floor(Math.random() * 9) + 2;
         answer = num1 * num2;
+      } else {
+        num2 = Math.floor(Math.random() * 9) + 2;
+        answer = Math.floor(Math.random() * 9) + 2;
+        num1 = num2 * answer;
       }
       break;
 
     case 4:
-      // All operations, numbers to 50
-      operators = ["+", "-", "×", "÷"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
+      // Lớp 4: Nhân chia số có nhiều chữ số, cộng trừ đến 100000
+      operator = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)] as Operator;
       if (operator === "+") {
-        num1 = Math.floor(Math.random() * 50) + 1;
-        num2 = Math.floor(Math.random() * 50) + 1;
+        num1 = Math.floor(Math.random() * 50000) + 1;
+        num2 = Math.floor(Math.random() * 50000) + 1;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = Math.floor(Math.random() * 50) + 1;
+        num1 = Math.floor(Math.random() * 99999) + 2;
         num2 = Math.floor(Math.random() * num1) + 1;
         answer = num1 - num2;
       } else if (operator === "×") {
-        num1 = Math.floor(Math.random() * 10) + 1;
-        num2 = Math.floor(Math.random() * 10) + 1;
+        num1 = Math.floor(Math.random() * 99) + 2;
+        num2 = Math.floor(Math.random() * 9) + 2;
         answer = num1 * num2;
       } else {
-        num2 = Math.floor(Math.random() * 10) + 1;
-        answer = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 9) + 2;
+        answer = Math.floor(Math.random() * 99) + 2;
         num1 = num2 * answer;
       }
       break;
 
     case 5:
-      // Larger numbers, harder multiply
-      operators = ["+", "-", "×", "÷"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
+      // Lớp 5: Số thập phân đơn giản, nhân chia số lớn
+      operator = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)] as Operator;
       if (operator === "+") {
-        num1 = Math.floor(Math.random() * 75) + 1;
-        num2 = Math.floor(Math.random() * 75) + 1;
+        num1 = Math.floor(Math.random() * 500) + 100;
+        num2 = Math.floor(Math.random() * 500) + 100;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = Math.floor(Math.random() * 75) + 1;
+        num1 = Math.floor(Math.random() * 900) + 100;
         num2 = Math.floor(Math.random() * num1) + 1;
         answer = num1 - num2;
       } else if (operator === "×") {
-        num1 = Math.floor(Math.random() * 12) + 1;
-        num2 = Math.floor(Math.random() * 12) + 1;
+        num1 = Math.floor(Math.random() * 99) + 10;
+        num2 = Math.floor(Math.random() * 9) + 2;
         answer = num1 * num2;
       } else {
-        num2 = Math.floor(Math.random() * 12) + 1;
-        answer = Math.floor(Math.random() * 12) + 1;
+        num2 = Math.floor(Math.random() * 9) + 2;
+        answer = Math.floor(Math.random() * 99) + 10;
         num1 = num2 * answer;
       }
       break;
 
     case 6:
-      // Numbers to 100, all ops
-      operators = ["+", "-", "×", "÷"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
+      // Lớp 6: Số nguyên âm, phép tính với số âm
+      operator = ["+", "-", "×"][Math.floor(Math.random() * 3)] as Operator;
+      const useNeg6 = Math.random() > 0.5;
       if (operator === "+") {
-        num1 = Math.floor(Math.random() * 100) + 1;
-        num2 = Math.floor(Math.random() * 100) + 1;
+        num1 = useNeg6 ? -(Math.floor(Math.random() * 20) + 1) : Math.floor(Math.random() * 30) + 1;
+        num2 = Math.floor(Math.random() * 20) + 1;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = Math.floor(Math.random() * 100) + 1;
-        num2 = Math.floor(Math.random() * num1) + 1;
+        num1 = Math.floor(Math.random() * 30) + 1;
+        num2 = Math.floor(Math.random() * 50) + 1;
         answer = num1 - num2;
-      } else if (operator === "×") {
-        num1 = Math.floor(Math.random() * 12) + 2;
-        num2 = Math.floor(Math.random() * 12) + 2;
-        answer = num1 * num2;
       } else {
-        num2 = Math.floor(Math.random() * 12) + 2;
-        answer = Math.floor(Math.random() * 12) + 2;
-        num1 = num2 * answer;
+        num1 = useNeg6 ? -(Math.floor(Math.random() * 10) + 1) : Math.floor(Math.random() * 12) + 2;
+        num2 = Math.floor(Math.random() * 10) + 2;
+        answer = num1 * num2;
       }
       break;
 
     case 7:
-      // Introduce negative numbers
-      operators = ["+", "-", "×"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
-      const useNegative7 = Math.random() > 0.5;
+      // Lớp 7: Số hữu tỉ, phép tính với số âm phức tạp
+      operator = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)] as Operator;
+      const useNeg7 = Math.random() > 0.4;
       if (operator === "+") {
-        num1 = useNegative7 ? -(Math.floor(Math.random() * 20) + 1) : Math.floor(Math.random() * 50) + 1;
-        num2 = Math.floor(Math.random() * 30) + 1;
+        num1 = useNeg7 ? -(Math.floor(Math.random() * 50) + 1) : Math.floor(Math.random() * 50) + 1;
+        num2 = useNeg7 ? -(Math.floor(Math.random() * 50) + 1) : Math.floor(Math.random() * 50) + 1;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = Math.floor(Math.random() * 50) + 1;
+        num1 = useNeg7 ? -(Math.floor(Math.random() * 50) + 1) : Math.floor(Math.random() * 50) + 1;
         num2 = Math.floor(Math.random() * 70) + 1;
         answer = num1 - num2;
-      } else {
-        num1 = useNegative7 ? -(Math.floor(Math.random() * 10) + 1) : Math.floor(Math.random() * 12) + 1;
-        num2 = Math.floor(Math.random() * 10) + 1;
+      } else if (operator === "×") {
+        num1 = useNeg7 ? -(Math.floor(Math.random() * 12) + 1) : Math.floor(Math.random() * 15) + 2;
+        num2 = Math.floor(Math.random() * 12) + 2;
         answer = num1 * num2;
+      } else {
+        num2 = Math.floor(Math.random() * 12) + 2;
+        answer = useNeg7 ? -(Math.floor(Math.random() * 12) + 1) : Math.floor(Math.random() * 12) + 2;
+        num1 = num2 * answer;
       }
       break;
 
     case 8:
-      // Larger negatives & multiply
-      operators = ["+", "-", "×", "÷"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
-      const useNegative8 = Math.random() > 0.4;
+      // Lớp 8: Đa thức, phép tính phức tạp
+      operator = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)] as Operator;
+      const useNeg8 = Math.random() > 0.3;
       if (operator === "+") {
-        num1 = useNegative8 ? -(Math.floor(Math.random() * 50) + 1) : Math.floor(Math.random() * 100) + 1;
-        num2 = useNegative8 ? -(Math.floor(Math.random() * 50) + 1) : Math.floor(Math.random() * 100) + 1;
+        num1 = useNeg8 ? -(Math.floor(Math.random() * 100) + 1) : Math.floor(Math.random() * 100) + 1;
+        num2 = useNeg8 ? -(Math.floor(Math.random() * 100) + 1) : Math.floor(Math.random() * 100) + 1;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = useNegative8 ? -(Math.floor(Math.random() * 50) + 1) : Math.floor(Math.random() * 100) + 1;
-        num2 = Math.floor(Math.random() * 100) + 1;
+        num1 = useNeg8 ? -(Math.floor(Math.random() * 100) + 1) : Math.floor(Math.random() * 100) + 1;
+        num2 = Math.floor(Math.random() * 150) + 1;
         answer = num1 - num2;
       } else if (operator === "×") {
-        num1 = useNegative8 ? -(Math.floor(Math.random() * 12) + 1) : Math.floor(Math.random() * 15) + 1;
-        num2 = Math.floor(Math.random() * 12) + 1;
+        num1 = useNeg8 ? -(Math.floor(Math.random() * 15) + 1) : Math.floor(Math.random() * 20) + 2;
+        num2 = Math.floor(Math.random() * 15) + 2;
         answer = num1 * num2;
       } else {
-        num2 = Math.floor(Math.random() * 12) + 2;
-        answer = useNegative8 ? -(Math.floor(Math.random() * 12) + 1) : Math.floor(Math.random() * 12) + 1;
+        num2 = Math.floor(Math.random() * 15) + 2;
+        answer = useNeg8 ? -(Math.floor(Math.random() * 15) + 1) : Math.floor(Math.random() * 15) + 2;
         num1 = num2 * answer;
       }
       break;
 
     case 9:
-      // Complex operations
-      operators = ["+", "-", "×", "÷"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
-      const useNegative9 = Math.random() > 0.3;
+      // Lớp 9: Căn bậc hai, phép tính nâng cao
+      operator = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)] as Operator;
+      const useNeg9 = Math.random() > 0.25;
       if (operator === "+") {
-        num1 = useNegative9 ? -(Math.floor(Math.random() * 100) + 1) : Math.floor(Math.random() * 150) + 1;
-        num2 = useNegative9 ? -(Math.floor(Math.random() * 100) + 1) : Math.floor(Math.random() * 150) + 1;
+        num1 = useNeg9 ? -(Math.floor(Math.random() * 150) + 1) : Math.floor(Math.random() * 200) + 1;
+        num2 = useNeg9 ? -(Math.floor(Math.random() * 150) + 1) : Math.floor(Math.random() * 200) + 1;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = useNegative9 ? -(Math.floor(Math.random() * 100) + 1) : Math.floor(Math.random() * 150) + 1;
-        num2 = Math.floor(Math.random() * 150) + 1;
+        num1 = useNeg9 ? -(Math.floor(Math.random() * 150) + 1) : Math.floor(Math.random() * 200) + 1;
+        num2 = Math.floor(Math.random() * 200) + 1;
         answer = num1 - num2;
       } else if (operator === "×") {
-        num1 = useNegative9 ? -(Math.floor(Math.random() * 15) + 1) : Math.floor(Math.random() * 20) + 1;
-        num2 = Math.floor(Math.random() * 15) + 1;
+        num1 = useNeg9 ? -(Math.floor(Math.random() * 20) + 1) : Math.floor(Math.random() * 25) + 2;
+        num2 = Math.floor(Math.random() * 20) + 2;
         answer = num1 * num2;
       } else {
-        num2 = Math.floor(Math.random() * 15) + 2;
-        answer = useNegative9 ? -(Math.floor(Math.random() * 15) + 1) : Math.floor(Math.random() * 15) + 1;
+        num2 = Math.floor(Math.random() * 20) + 2;
+        answer = useNeg9 ? -(Math.floor(Math.random() * 20) + 1) : Math.floor(Math.random() * 20) + 2;
         num1 = num2 * answer;
       }
       break;
 
     case 10:
     default:
-      // Master level
-      operators = ["+", "-", "×", "÷"];
-      operator = operators[Math.floor(Math.random() * operators.length)];
-      const useNegative10 = Math.random() > 0.25;
+      // Lớp 10: Toán nâng cao, số lớn và phức tạp
+      operator = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)] as Operator;
+      const useNeg10 = Math.random() > 0.2;
       if (operator === "+") {
-        num1 = useNegative10 ? -(Math.floor(Math.random() * 200) + 1) : Math.floor(Math.random() * 200) + 1;
-        num2 = useNegative10 ? -(Math.floor(Math.random() * 200) + 1) : Math.floor(Math.random() * 200) + 1;
+        num1 = useNeg10 ? -(Math.floor(Math.random() * 300) + 1) : Math.floor(Math.random() * 300) + 1;
+        num2 = useNeg10 ? -(Math.floor(Math.random() * 300) + 1) : Math.floor(Math.random() * 300) + 1;
         answer = num1 + num2;
       } else if (operator === "-") {
-        num1 = useNegative10 ? -(Math.floor(Math.random() * 150) + 1) : Math.floor(Math.random() * 200) + 1;
-        num2 = Math.floor(Math.random() * 200) + 1;
+        num1 = useNeg10 ? -(Math.floor(Math.random() * 200) + 1) : Math.floor(Math.random() * 300) + 1;
+        num2 = Math.floor(Math.random() * 300) + 1;
         answer = num1 - num2;
       } else if (operator === "×") {
-        num1 = useNegative10 ? -(Math.floor(Math.random() * 20) + 1) : Math.floor(Math.random() * 25) + 1;
-        num2 = Math.floor(Math.random() * 20) + 1;
+        num1 = useNeg10 ? -(Math.floor(Math.random() * 25) + 1) : Math.floor(Math.random() * 30) + 2;
+        num2 = Math.floor(Math.random() * 25) + 2;
         answer = num1 * num2;
       } else {
-        num2 = Math.floor(Math.random() * 20) + 2;
-        answer = useNegative10 ? -(Math.floor(Math.random() * 20) + 1) : Math.floor(Math.random() * 20) + 1;
+        num2 = Math.floor(Math.random() * 25) + 2;
+        answer = useNeg10 ? -(Math.floor(Math.random() * 25) + 1) : Math.floor(Math.random() * 25) + 2;
         num1 = num2 * answer;
       }
       break;
