@@ -7,7 +7,8 @@ interface GameOverProps {
   questionsAnswered: number;
   maxStreak: number;
   grade: number;
-  onRestart: () => void;
+  mode: "timed" | "practice";
+  onRestart: (mode: "timed" | "practice") => void;
 }
 
 export const GameOver = ({
@@ -16,6 +17,7 @@ export const GameOver = ({
   questionsAnswered,
   maxStreak,
   grade,
+  mode,
   onRestart,
 }: GameOverProps) => {
   const isNewHighScore = score >= highScore && score > 0;
@@ -106,7 +108,7 @@ export const GameOver = ({
       </motion.div>
 
       <motion.button
-        onClick={onRestart}
+        onClick={() => onRestart(mode)}
         className="inline-flex items-center gap-3 bg-gradient-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-2xl shadow-glow-primary"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -115,7 +117,7 @@ export const GameOver = ({
         transition={{ delay: 0.6 }}
       >
         <RotateCcw className="w-6 h-6" />
-        Play Again
+        {mode === "practice" ? "Tiếp tục luyện" : "Chơi lại"}
       </motion.button>
     </motion.div>
   );

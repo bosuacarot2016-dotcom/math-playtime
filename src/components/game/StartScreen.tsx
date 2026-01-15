@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { Play, Brain, Zap, Trophy } from "lucide-react";
+import { Brain, Zap, Trophy, BookOpen } from "lucide-react";
 import { GradeSelector } from "./GradeSelector";
 
 interface StartScreenProps {
   highScore: number;
   grade: number;
   onSelectGrade: (grade: number) => void;
-  onStart: () => void;
+  onStart: (mode: "timed" | "practice") => void;
 }
 
 export const StartScreen = ({ highScore, grade, onSelectGrade, onStart }: StartScreenProps) => {
@@ -41,7 +41,7 @@ export const StartScreen = ({ highScore, grade, onSelectGrade, onStart }: StartS
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3 }}
       >
-        Solve problems fast! Build streaks for bonus points.
+        Giải nhanh! Combo liên tiếp để nhận điểm thưởng.
       </motion.p>
 
       <motion.div
@@ -59,28 +59,38 @@ export const StartScreen = ({ highScore, grade, onSelectGrade, onStart }: StartS
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        <div className="flex items-center gap-2 text-primary">
-          <Zap className="w-5 h-5" />
-          <span className="text-sm">Quick fire</span>
-        </div>
         <div className="flex items-center gap-2 text-accent">
           <Trophy className="w-5 h-5" />
-          <span className="text-sm">Best: {highScore}</span>
+          <span className="text-sm">Điểm cao: {highScore}</span>
         </div>
       </motion.div>
 
-      <motion.button
-        onClick={onStart}
-        className="inline-flex items-center gap-3 bg-gradient-primary text-primary-foreground font-bold text-xl px-10 py-4 rounded-2xl shadow-glow-primary"
+      <motion.div
+        className="flex flex-col sm:flex-row items-center justify-center gap-3"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
       >
-        <Play className="w-6 h-6" />
-        Start Grade {grade}
-      </motion.button>
+        <motion.button
+          onClick={() => onStart("timed")}
+          className="inline-flex items-center gap-3 bg-gradient-primary text-primary-foreground font-bold text-lg px-8 py-3 rounded-2xl shadow-glow-primary"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Zap className="w-5 h-5" />
+          Thi đấu
+        </motion.button>
+        
+        <motion.button
+          onClick={() => onStart("practice")}
+          className="inline-flex items-center gap-3 bg-secondary text-secondary-foreground font-bold text-lg px-8 py-3 rounded-2xl border border-border hover:bg-secondary/80"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <BookOpen className="w-5 h-5" />
+          Luyện tập
+        </motion.button>
+      </motion.div>
     </motion.div>
   );
 };

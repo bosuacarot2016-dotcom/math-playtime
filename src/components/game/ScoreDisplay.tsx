@@ -6,9 +6,10 @@ interface ScoreDisplayProps {
   streak: number;
   highScore: number;
   grade: number;
+  mode: "timed" | "practice";
 }
 
-export const ScoreDisplay = ({ score, streak, highScore, grade }: ScoreDisplayProps) => {
+export const ScoreDisplay = ({ score, streak, highScore, grade, mode }: ScoreDisplayProps) => {
   return (
     <div className="flex items-center justify-between w-full max-w-md mx-auto mb-6">
       <motion.div
@@ -17,7 +18,9 @@ export const ScoreDisplay = ({ score, streak, highScore, grade }: ScoreDisplayPr
         animate={{ opacity: 1, x: 0 }}
       >
         <GraduationCap className="w-4 h-4 text-primary" />
-        <span className="font-mono font-bold text-primary text-sm">G{grade}</span>
+        <span className="font-mono font-bold text-primary text-sm">
+          {mode === "practice" ? "Luyện tập" : `G${grade}`}
+        </span>
       </motion.div>
 
       <motion.div
