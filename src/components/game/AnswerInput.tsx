@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { Send, Delete } from "lucide-react";
 
 interface AnswerInputProps {
   onSubmit: (answer: number) => void;
@@ -61,7 +62,7 @@ export const AnswerInput = ({ onSubmit, disabled }: AnswerInputProps) => {
         }}
         placeholder="?"
         disabled={disabled}
-        className="w-full text-center font-mono text-4xl font-bold bg-card/80 border-2 border-primary/50 rounded-2xl py-4 px-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:shadow-glow-primary transition-all duration-300"
+        className="w-full text-center font-mono text-4xl font-bold bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-2 border-purple-500/50 rounded-2xl py-4 px-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-500/20 transition-all duration-300"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       />
@@ -70,14 +71,14 @@ export const AnswerInput = ({ onSubmit, disabled }: AnswerInputProps) => {
         {keypadButtons.map((btn) => (
           <motion.button
             key={btn}
-            type={btn === "backspace" || btn === "negative" ? "button" : "button"}
+            type="button"
             onClick={() => handleKeypadClick(btn)}
             disabled={disabled}
-            className="bg-secondary hover:bg-secondary/80 text-foreground font-mono text-2xl font-bold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-border/50"
+            className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 hover:from-purple-500/30 hover:to-pink-500/30 text-foreground font-mono text-2xl font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-purple-500/20 hover:border-purple-500/50"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {btn === "backspace" ? "⌫" : btn === "negative" ? "±" : btn}
+            {btn === "backspace" ? <Delete className="w-6 h-6 mx-auto text-orange-400" /> : btn === "negative" ? "±" : btn}
           </motion.button>
         ))}
       </div>
@@ -85,11 +86,12 @@ export const AnswerInput = ({ onSubmit, disabled }: AnswerInputProps) => {
       <motion.button
         type="submit"
         disabled={disabled || !value.trim()}
-        className="w-full mt-4 bg-gradient-primary text-primary-foreground font-bold text-xl py-4 rounded-2xl shadow-glow-primary disabled:opacity-50 disabled:shadow-none transition-all duration-300"
+        className="w-full mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold text-xl py-4 rounded-2xl shadow-lg shadow-purple-500/30 disabled:opacity-50 disabled:shadow-none transition-all duration-300"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        Submit Answer
+        <Send className="w-5 h-5" />
+        Trả lời
       </motion.button>
     </form>
   );
