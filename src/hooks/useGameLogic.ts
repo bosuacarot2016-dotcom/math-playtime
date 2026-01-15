@@ -337,10 +337,11 @@ export const useGameLogic = () => {
 
     const interval = setInterval(() => {
       setGameState((prev) => {
-        if (prev.timeLeft <= 0.1) {
-          return prev;
+        const newTime = prev.timeLeft - 0.1;
+        if (newTime <= 0) {
+          return { ...prev, timeLeft: 0 };
         }
-        return { ...prev, timeLeft: prev.timeLeft - 0.1 };
+        return { ...prev, timeLeft: newTime };
       });
     }, 100);
 
