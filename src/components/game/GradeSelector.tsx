@@ -6,16 +6,16 @@ interface GradeSelectorProps {
 }
 
 const gradeDescriptions: Record<number, string> = {
-  1: "Addition 1-10",
-  2: "Add & Subtract 1-20",
-  3: "Add, Sub, Multiply basics",
-  4: "All ops, numbers to 50",
-  5: "Larger numbers, harder multiply",
-  6: "Numbers to 100, all ops",
-  7: "Negative numbers intro",
-  8: "Larger negatives & multiply",
-  9: "Complex operations",
-  10: "Master level challenge",
+  1: "Cộng trong phạm vi 10",
+  2: "Cộng, trừ trong phạm vi 20",
+  3: "Cộng, trừ, nhân cơ bản (bảng cửu chương 2-5)",
+  4: "Bốn phép tính, số đến 50",
+  5: "Nhân chia 2 chữ số, số đến 100",
+  6: "Bốn phép tính với số đến 1000",
+  7: "Làm quen số nguyên âm",
+  8: "Phép tính với số nguyên âm",
+  9: "Phép tính phức tạp, số lớn",
+  10: "Thử thách cao cấp - tất cả dạng bài",
 };
 
 export const GradeSelector = ({ selectedGrade, onSelectGrade }: GradeSelectorProps) => {
