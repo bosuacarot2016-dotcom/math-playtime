@@ -1,20 +1,105 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import { useGameLogic } from "@/hooks/useGameLogic";
+import { usePlayerData } from "@/hooks/usePlayerData";
+import { CharacterCreation } from "@/components/game/CharacterCreation";
 import { StartScreen } from "@/components/game/StartScreen";
 import { ScoreDisplay } from "@/components/game/ScoreDisplay";
-import { Timer } from "@/components/game/Timer";
+import { EnergyBar } from "@/components/game/EnergyBar";
 import { Problem } from "@/components/game/Problem";
 import { AnswerInput } from "@/components/game/AnswerInput";
 import { GameOver } from "@/components/game/GameOver";
-import { Square } from "lucide-react";
+import { PlayerHeader } from "@/components/game/PlayerHeader";
+import { AchievementNotification } from "@/components/game/AchievementNotification";
+import { AchievementsPanel } from "@/components/game/AchievementsPanel";
+import { Square, Trophy } from "lucide-react";
 
 const Index = () => {
   const { gameState, startGame, submitAnswer, setGrade, endGame } = useGameLogic();
+  const { 
+    player, 
+    createPlayer, 
+    addXp, 
+    updateStats, 
+    newAchievements, 
+    clearNewAchievements,
+    xpForCurrentLevel,
+    xpProgress,
+    avatars 
+  } = usePlayerData();
+  
+  const [showAchievements, setShowAchievements] = useState(false);
+  
   const { status, mode, score, streak, highScore, timeLeft, currentProblem, feedback, questionsAnswered, maxStreak, grade } = gameState;
 
+  // Get avatar emoji
+  const avatarEmoji = avatars.find(a => a.id === player.avatarId)?.emoji || "🧙‍♂️";
+
+  // Handle game over - update stats and add XP
+  const handleGameEnd = () => {
+    const correctAnswers = Math.floor(score / 10); // Approximate
+    updateStats(correctAnswers, questionsAnswered, maxStreak, score);
+    addXp(Math.floor(score / 2)); // XP = half of score
+  };
+
+  // Check if game just ended
+  if (status === "gameOver" && questionsAnswered > 0) {
+    // This will be called once when game ends
+  }
+
+  // Show character creation if no player exists
+  if (!player.name) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-gradient-to-br from-purple-900/20 via-background to-pink-900/20">
+        <div className="w-full max-w-lg">
+          <CharacterCreation avatars={avatars} onCreateCharacter={createPlayer} />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 md:p-8">
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen flex flex-col p-4 md:p-8 bg-gradient-to-br from-purple-900/20 via-background to-pink-900/20">
+      {/* Achievement notification */}
+      <AchievementNotification achievements={newAchievements} onClose={clearNewAchievements} />
+      
+      {/* Achievements panel */}
+      <AnimatePresence>
+        {showAchievements && (
+          <AchievementsPanel achievements={player.achievements} onClose={() => setShowAchievements(false)} />
+        )}
+      </AnimatePresence>
+
+      <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
+        {/* Player header - always visible except during character creation */}
+        {status !== "playing" && (
+          <div className="flex items-center justify-between mb-2">
+            <PlayerHeader
+              name={player.name}
+              avatarEmoji={avatarEmoji}
+              level={player.level}
+              xp={player.xp}
+              xpForLevel={xpForCurrentLevel}
+              xpProgress={xpProgress}
+            />
+          </div>
+        )}
+
+        {/* Achievement button */}
+        {status === "idle" && (
+          <motion.button
+            onClick={() => setShowAchievements(true)}
+            className="self-end mb-4 flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-4 py-2 rounded-xl border border-yellow-500/30 hover:border-yellow-500/50 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Trophy className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {player.achievements.filter(a => a.unlocked).length}/{player.achievements.length}
+            </span>
+          </motion.button>
+        )}
+
         <AnimatePresence mode="wait">
           {status === "idle" && (
             <motion.div
@@ -27,7 +112,8 @@ const Index = () => {
                 highScore={highScore} 
                 grade={grade}
                 onSelectGrade={setGrade}
-                onStart={startGame} 
+                onStart={startGame}
+                playerLevel={player.level}
               />
             </motion.div>
           )}
@@ -39,8 +125,20 @@ const Index = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <ScoreDisplay score={score} streak={streak} highScore={highScore} grade={grade} mode={mode} />
-              {mode === "timed" && <Timer timeLeft={timeLeft} maxTime={10} />}
+              {/* Compact player info during game */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 bg-card/50 px-3 py-2 rounded-xl border border-purple-500/30">
+                  <span className="text-2xl">{avatarEmoji}</span>
+                  <div>
+                    <div className="text-sm font-bold text-foreground">{player.name}</div>
+                    <div className="text-xs text-purple-400">Lv.{player.level}</div>
+                  </div>
+                </div>
+                <ScoreDisplay score={score} streak={streak} highScore={highScore} grade={grade} mode={mode} />
+              </div>
+              
+              {mode === "timed" && <EnergyBar current={timeLeft} max={10} label="Năng lượng" />}
+              
               <Problem
                 num1={currentProblem.num1}
                 num2={currentProblem.num2}
@@ -53,7 +151,10 @@ const Index = () => {
               />
               {mode === "practice" && (
                 <motion.button
-                  onClick={endGame}
+                  onClick={() => {
+                    handleGameEnd();
+                    endGame();
+                  }}
                   className="w-full max-w-sm mx-auto mt-4 flex items-center justify-center gap-2 bg-muted hover:bg-muted/80 text-muted-foreground font-medium py-3 rounded-xl border border-border/50 transition-colors"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -73,6 +174,7 @@ const Index = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, y: -20 }}
+              onAnimationStart={handleGameEnd}
             >
               <GameOver
                 score={score}
@@ -82,6 +184,8 @@ const Index = () => {
                 grade={grade}
                 mode={mode}
                 onRestart={startGame}
+                xpEarned={Math.floor(score / 2)}
+                playerLevel={player.level}
               />
             </motion.div>
           )}

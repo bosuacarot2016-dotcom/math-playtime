@@ -31,8 +31,8 @@ export const GradeSelector = ({ selectedGrade, onSelectGrade }: GradeSelectorPro
             onClick={() => onSelectGrade(grade)}
             className={`relative py-3 rounded-xl font-mono text-lg font-bold transition-all duration-200 border ${
               selectedGrade === grade
-                ? "bg-gradient-primary text-primary-foreground border-primary shadow-glow-primary"
-                : "bg-card/50 text-foreground border-border/50 hover:border-primary/50"
+                ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white border-purple-400 shadow-lg shadow-purple-500/30"
+                : "bg-card/50 text-foreground border-border/50 hover:border-purple-500/50"
             }`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -47,7 +47,7 @@ export const GradeSelector = ({ selectedGrade, onSelectGrade }: GradeSelectorPro
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <span className="text-primary font-bold">Grade {selectedGrade}:</span>{" "}
+        <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">Lớp {selectedGrade}:</span>{" "}
         <span className="text-muted-foreground">{gradeDescriptions[selectedGrade]}</span>
       </motion.div>
     </div>

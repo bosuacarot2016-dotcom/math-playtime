@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { RotateCcw, Trophy, Target, Flame, GraduationCap } from "lucide-react";
+import { RotateCcw, Trophy, Target, Flame, GraduationCap, Sparkles, Star } from "lucide-react";
 
 interface GameOverProps {
   score: number;
@@ -9,6 +9,8 @@ interface GameOverProps {
   grade: number;
   mode: "timed" | "practice";
   onRestart: (mode: "timed" | "practice") => void;
+  xpEarned: number;
+  playerLevel: number;
 }
 
 export const GameOver = ({
@@ -19,6 +21,8 @@ export const GameOver = ({
   grade,
   mode,
   onRestart,
+  xpEarned,
+  playerLevel,
 }: GameOverProps) => {
   const isNewHighScore = score >= highScore && score > 0;
 
@@ -37,25 +41,25 @@ export const GameOver = ({
         {isNewHighScore ? (
           <>
             <motion.div
-              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-accent shadow-glow-accent mb-4"
-              animate={{ rotate: [0, -10, 10, -10, 0] }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 via-orange-400 to-red-400 shadow-lg shadow-orange-500/50 mb-4"
+              animate={{ rotate: [0, -10, 10, -10, 0], scale: [1, 1.1, 1] }}
               transition={{ delay: 0.5, duration: 0.5 }}
             >
-              <Trophy className="w-10 h-10 text-accent-foreground" />
+              <Trophy className="w-10 h-10 text-white" />
             </motion.div>
-            <h2 className="text-3xl font-bold text-gradient-accent mb-2">
-              New High Score!
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent mb-2">
+              Kỷ lục mới! 🎉
             </h2>
           </>
         ) : (
           <>
             <motion.div
-              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-card border border-border mb-4"
+              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/30 mb-4"
             >
-              <Target className="w-10 h-10 text-primary" />
+              <Star className="w-10 h-10 text-white" />
             </motion.div>
             <h2 className="text-3xl font-bold text-foreground mb-2">
-              Game Over
+              Hoàn thành!
             </h2>
           </>
         )}
@@ -67,38 +71,49 @@ export const GameOver = ({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
       >
-        <div className="bg-card/80 rounded-2xl p-6 border border-border/50">
+        <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl p-6 border border-purple-500/30">
           <p className="text-muted-foreground text-sm uppercase tracking-wider mb-1">
-            Final Score
+            Điểm số
           </p>
-          <p className="font-mono text-5xl font-bold text-gradient-primary">
+          <p className="font-mono text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
             {score}
           </p>
         </div>
 
+        {/* XP Earned */}
+        <motion.div
+          className="flex items-center justify-center gap-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl p-4 border border-cyan-500/30"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Sparkles className="w-6 h-6 text-cyan-400" />
+          <span className="text-xl font-bold text-cyan-400">+{xpEarned} XP</span>
+        </motion.div>
+
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-card/50 rounded-xl p-3 border border-border/50">
-            <GraduationCap className="w-5 h-5 text-primary mx-auto mb-1" />
+          <div className="bg-card/50 rounded-xl p-3 border border-purple-500/30">
+            <GraduationCap className="w-5 h-5 text-purple-400 mx-auto mb-1" />
             <p className="text-muted-foreground text-xs uppercase tracking-wider">
-              Grade
+              Lớp
             </p>
             <p className="font-mono text-xl font-bold text-foreground">
               {grade}
             </p>
           </div>
-          <div className="bg-card/50 rounded-xl p-3 border border-border/50">
-            <Target className="w-5 h-5 text-primary mx-auto mb-1" />
+          <div className="bg-card/50 rounded-xl p-3 border border-cyan-500/30">
+            <Target className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
             <p className="text-muted-foreground text-xs uppercase tracking-wider">
-              Answered
+              Trả lời
             </p>
             <p className="font-mono text-xl font-bold text-foreground">
               {questionsAnswered}
             </p>
           </div>
-          <div className="bg-card/50 rounded-xl p-3 border border-border/50">
-            <Flame className="w-5 h-5 text-error mx-auto mb-1" />
+          <div className="bg-card/50 rounded-xl p-3 border border-orange-500/30">
+            <Flame className="w-5 h-5 text-orange-400 mx-auto mb-1" />
             <p className="text-muted-foreground text-xs uppercase tracking-wider">
-              Streak
+              Combo
             </p>
             <p className="font-mono text-xl font-bold text-foreground">
               {maxStreak}
@@ -109,15 +124,15 @@ export const GameOver = ({
 
       <motion.button
         onClick={() => onRestart(mode)}
-        className="inline-flex items-center gap-3 bg-gradient-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-2xl shadow-glow-primary"
+        className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold text-xl px-8 py-4 rounded-2xl shadow-lg shadow-purple-500/30"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.8 }}
       >
         <RotateCcw className="w-6 h-6" />
-        {mode === "practice" ? "Tiếp tục luyện" : "Chơi lại"}
+        {mode === "practice" ? "Tiếp tục luyện" : "Chiến tiếp!"}
       </motion.button>
     </motion.div>
   );
