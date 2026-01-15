@@ -11,6 +11,7 @@ interface Problem {
 
 interface GameState {
   status: "idle" | "playing" | "gameOver";
+  mode: "timed" | "practice";
   score: number;
   streak: number;
   maxStreak: number;
@@ -253,6 +254,7 @@ export const useGameLogic = () => {
     const grade = savedGrade ? parseInt(savedGrade, 10) : 1;
     return {
       status: "idle",
+      mode: "timed",
       score: 0,
       streak: 0,
       maxStreak: 0,
@@ -274,10 +276,11 @@ export const useGameLogic = () => {
     }));
   }, []);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((mode: "timed" | "practice" = "timed") => {
     setGameState((prev) => ({
       ...prev,
       status: "playing",
+      mode,
       score: 0,
       streak: 0,
       maxStreak: 0,
@@ -333,7 +336,7 @@ export const useGameLogic = () => {
   }, []);
 
   useEffect(() => {
-    if (gameState.status !== "playing") return;
+    if (gameState.status !== "playing" || gameState.mode === "practice") return;
 
     const interval = setInterval(() => {
       setGameState((prev) => {
@@ -346,18 +349,19 @@ export const useGameLogic = () => {
     }, 100);
 
     return () => clearInterval(interval);
-  }, [gameState.status]);
+  }, [gameState.status, gameState.mode]);
 
   useEffect(() => {
-    if (gameState.status === "playing" && gameState.timeLeft <= 0) {
+    if (gameState.status === "playing" && gameState.mode === "timed" && gameState.timeLeft <= 0) {
       endGame();
     }
-  }, [gameState.timeLeft, gameState.status, endGame]);
+  }, [gameState.timeLeft, gameState.status, gameState.mode, endGame]);
 
   return {
     gameState,
     startGame,
     submitAnswer,
     setGrade,
+    endGame,
   };
 };
