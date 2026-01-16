@@ -12,6 +12,8 @@ import { GameOver } from "@/components/game/GameOver";
 import { PlayerHeader } from "@/components/game/PlayerHeader";
 import { AchievementNotification } from "@/components/game/AchievementNotification";
 import { AchievementsPanel } from "@/components/game/AchievementsPanel";
+import { FloatingParticles } from "@/components/game/FloatingParticles";
+import { StreakFlame } from "@/components/game/StreakFlame";
 import { Square, Trophy } from "lucide-react";
 
 const Index = () => {
@@ -59,7 +61,10 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-8 bg-gradient-to-br from-purple-900/20 via-background to-pink-900/20">
+    <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden">
+      {/* Floating particles background */}
+      <FloatingParticles count={25} />
+      
       {/* Achievement notification */}
       <AchievementNotification achievements={newAchievements} onClose={clearNewAchievements} />
       
@@ -135,6 +140,7 @@ const Index = () => {
                   </div>
                 </div>
                 <ScoreDisplay score={score} streak={streak} highScore={highScore} grade={grade} mode={mode} />
+                <StreakFlame streak={streak} />
               </div>
               
               {mode === "timed" && <EnergyBar current={timeLeft} max={10} label="Năng lượng" />}
