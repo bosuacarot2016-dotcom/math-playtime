@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { RotateCcw, Trophy, Target, Flame, GraduationCap, Sparkles, Star } from "lucide-react";
+import { RotateCcw, Trophy, Target, Flame, GraduationCap, Sparkles, Star, Home } from "lucide-react";
 
 interface GameOverProps {
   score: number;
@@ -9,6 +9,7 @@ interface GameOverProps {
   grade: number;
   mode: "timed" | "practice";
   onRestart: (mode: "timed" | "practice") => void;
+  onExit: () => void;
   xpEarned: number;
   playerLevel: number;
 }
@@ -21,6 +22,7 @@ export const GameOver = ({
   grade,
   mode,
   onRestart,
+  onExit,
   xpEarned,
   playerLevel,
 }: GameOverProps) => {
@@ -122,18 +124,33 @@ export const GameOver = ({
         </div>
       </motion.div>
 
-      <motion.button
-        onClick={() => onRestart(mode)}
-        className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold text-xl px-8 py-4 rounded-2xl shadow-lg shadow-purple-500/30"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-      >
-        <RotateCcw className="w-6 h-6" />
-        {mode === "practice" ? "Tiếp tục luyện" : "Chiến tiếp!"}
-      </motion.button>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <motion.button
+          onClick={() => onRestart(mode)}
+          className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold text-lg px-6 py-3 rounded-2xl shadow-lg shadow-purple-500/30"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <RotateCcw className="w-5 h-5" />
+          {mode === "practice" ? "Tiếp tục luyện" : "Chiến tiếp!"}
+        </motion.button>
+
+        <motion.button
+          onClick={onExit}
+          className="inline-flex items-center justify-center gap-3 bg-muted hover:bg-muted/80 text-muted-foreground font-bold text-lg px-6 py-3 rounded-2xl border border-border/50 transition-colors"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <Home className="w-5 h-5" />
+          Thoát
+        </motion.button>
+      </div>
     </motion.div>
   );
 };

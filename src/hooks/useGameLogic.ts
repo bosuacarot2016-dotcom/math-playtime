@@ -33,7 +33,7 @@ interface GameState {
   boss: BossState;
 }
 
-const INITIAL_TIME = 10;
+const INITIAL_TIME = 50;
 const TIME_BONUS = 2;
 const STREAK_MULTIPLIER = 0.5;
 
@@ -384,7 +384,7 @@ export const useGameLogic = () => {
     }, 300);
   }, []);
 
-  const endGame = useCallback(() => {
+const endGame = useCallback(() => {
     setGameState((prev) => {
       const newHighScore = Math.max(prev.highScore, prev.score);
       localStorage.setItem("mathBlitzHighScore", newHighScore.toString());
@@ -394,6 +394,21 @@ export const useGameLogic = () => {
         highScore: newHighScore,
       };
     });
+  }, []);
+
+  const resetToIdle = useCallback(() => {
+    setGameState((prev) => ({
+      ...prev,
+      status: "idle",
+      mode: "timed",
+      score: 0,
+      streak: 0,
+      timeLeft: INITIAL_TIME,
+      questionsAnswered: 0,
+      currentProblem: generateProblem(prev.grade),
+      feedback: null,
+      boss: { bossId: null, currentHp: 0, maxHp: 0, reward: 0, isAttacking: false, damageDealt: 0 },
+    }));
   }, []);
 
   useEffect(() => {
@@ -438,5 +453,6 @@ export const useGameLogic = () => {
     submitAnswer,
     setGrade,
     endGame,
+    resetToIdle,
   };
 };
