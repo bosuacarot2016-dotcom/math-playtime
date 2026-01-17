@@ -356,34 +356,3 @@ const Index = () => {
 };
 
 export default Index;
-            </motion.div>
-          )}
-
-          {status === "gameOver" && (
-            <motion.div
-              key="gameover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: -20 }}
-              onAnimationStart={handleGameEnd}
-            >
-              <GameOver
-                score={score}
-                highScore={highScore}
-                questionsAnswered={questionsAnswered}
-                maxStreak={maxStreak}
-                grade={grade}
-                mode={mode}
-                onRestart={handleStartGame}
-                xpEarned={Math.floor((score / 2) * bonuses.xpMultiplier)}
-                playerLevel={player.level}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-};
-
-export default Index;
