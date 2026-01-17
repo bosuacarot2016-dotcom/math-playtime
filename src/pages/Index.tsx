@@ -19,10 +19,11 @@ import { ShopPanel } from "@/components/game/ShopPanel";
 import { PowerupSelector } from "@/components/game/PowerupSelector";
 import { ActivePowerups } from "@/components/game/ActivePowerups";
 import { PetDisplay } from "@/components/game/PetDisplay";
-import { Square, Trophy, ShoppingBag, Zap, Coins } from "lucide-react";
+import { BossBattle, BossSelector, BossResult, BOSSES } from "@/components/game/BossBattle";
+import { Square, Trophy, ShoppingBag, Zap, Coins, Swords } from "lucide-react";
 
 const Index = () => {
-  const { gameState, startGame, submitAnswer, setGrade, endGame } = useGameLogic();
+  const { gameState, startGame, startBossBattle, submitAnswer, setGrade, endGame } = useGameLogic();
   const { 
     player, 
     createPlayer, 
@@ -51,8 +52,13 @@ const Index = () => {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [showPowerups, setShowPowerups] = useState(false);
+  const [showBossSelector, setShowBossSelector] = useState(false);
+  const [defeatedBosses, setDefeatedBosses] = useState<string[]>(() => {
+    const saved = localStorage.getItem("defeatedBosses");
+    return saved ? JSON.parse(saved) : [];
+  });
   
-  const { status, mode, score, streak, highScore, timeLeft, currentProblem, feedback, questionsAnswered, maxStreak, grade } = gameState;
+  const { status, mode, score, streak, highScore, timeLeft, currentProblem, feedback, questionsAnswered, maxStreak, grade, boss } = gameState;
 
   // Get avatar emoji
   const avatarEmoji = avatars.find(a => a.id === player.avatarId)?.emoji || "🧙‍♂️";
@@ -105,34 +111,45 @@ const Index = () => {
 
   const bonuses = calculateBonuses();
 
-  // Handle game over - update stats and add XP
+  // Handle game over
   const handleGameEnd = () => {
-    const correctAnswers = Math.floor(score / 10); // Approximate
+    const correctAnswers = Math.floor(score / 10);
     updateStats(correctAnswers, questionsAnswered, maxStreak, score);
-    
-    // Calculate XP with bonuses
     const baseXp = Math.floor(score / 2);
     const finalXp = Math.floor(baseXp * bonuses.xpMultiplier);
     addXp(finalXp);
-    
-    // Add coins based on score
     const coinsEarned = Math.floor(score / 10);
     addCoins(coinsEarned);
-    
-    // Clear powerups after game
     clearActivePowerups();
   };
 
-  // Handle starting game with powerup selection
+  // Handle boss victory
+  const handleBossVictory = () => {
+    const currentBoss = BOSSES.find(b => b.id === boss.bossId);
+    if (currentBoss) {
+      addCoins(currentBoss.reward);
+      addXp(Math.floor(currentBoss.reward / 2));
+      if (!defeatedBosses.includes(currentBoss.id)) {
+        const newDefeated = [...defeatedBosses, currentBoss.id];
+        setDefeatedBosses(newDefeated);
+        localStorage.setItem("defeatedBosses", JSON.stringify(newDefeated));
+      }
+    }
+  };
+
+  // Handle starting game
   const handleStartGame = (gameMode: "timed" | "practice") => {
-    // Check if player has any powerups
     const hasPowerups = shopState.ownedItems.some(item => item.quantity > 0);
-    
     if (hasPowerups && shopState.activePowerups.length === 0) {
       setShowPowerups(true);
     }
-    
     startGame(gameMode);
+  };
+
+  // Handle boss battle start
+  const handleStartBoss = (bossData: typeof BOSSES[0]) => {
+    setShowBossSelector(false);
+    startBossBattle(bossData.id, bossData.maxHp, bossData.reward);
   };
 
   // Show character creation if no player exists
@@ -211,41 +228,35 @@ const Index = () => {
 
         {/* Action buttons */}
         {status === "idle" && (
-          <div className="flex items-center justify-end gap-2 mb-4">
-            {/* Coins display */}
-            <motion.div
-              className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-3 py-2 rounded-xl border border-yellow-500/30"
-              whileHover={{ scale: 1.05 }}
-            >
+          <div className="flex items-center justify-end gap-2 mb-4 flex-wrap">
+            <motion.div className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-3 py-2 rounded-xl border border-yellow-500/30" whileHover={{ scale: 1.05 }}>
               <Coins className="w-4 h-4" />
               <span className="text-sm font-bold">{shopState.coins}</span>
             </motion.div>
             
-            {/* Shop button */}
-            <motion.button
-              onClick={() => setShowShop(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-4 py-2 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+            <motion.button onClick={() => setShowBossSelector(true)} className="flex items-center gap-2 bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-400 px-4 py-2 rounded-xl border border-red-500/30 hover:border-red-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Swords className="w-4 h-4" />
+              <span className="text-sm font-medium">Boss</span>
+            </motion.button>
+            
+            <motion.button onClick={() => setShowShop(true)} className="flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-4 py-2 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <ShoppingBag className="w-4 h-4" />
               <span className="text-sm font-medium">Cửa hàng</span>
             </motion.button>
             
-            {/* Achievements button */}
-            <motion.button
-              onClick={() => setShowAchievements(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-4 py-2 rounded-xl border border-yellow-500/30 hover:border-yellow-500/50 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+            <motion.button onClick={() => setShowAchievements(true)} className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-4 py-2 rounded-xl border border-yellow-500/30 hover:border-yellow-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Trophy className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                {player.achievements.filter(a => a.unlocked).length}/{player.achievements.length}
-              </span>
+              <span className="text-sm font-medium">{player.achievements.filter(a => a.unlocked).length}/{player.achievements.length}</span>
             </motion.button>
           </div>
         )}
+
+        {/* Boss selector */}
+        <AnimatePresence>
+          {showBossSelector && (
+            <BossSelector playerLevel={player.level} defeatedBosses={defeatedBosses} onSelectBoss={handleStartBoss} onClose={() => setShowBossSelector(false)} />
+          )}
+        </AnimatePresence>
 
         <AnimatePresence mode="wait">
           {status === "idle" && (
@@ -303,32 +314,48 @@ const Index = () => {
               
               {mode === "timed" && <EnergyBar current={timeLeft} max={10} label="Năng lượng" />}
               
-              <Problem
-                num1={currentProblem.num1}
-                num2={currentProblem.num2}
-                operator={currentProblem.operator}
-                feedback={feedback}
-              />
-              <AnswerInput
-                onSubmit={submitAnswer}
-                disabled={status !== "playing"}
-              />
+              {/* Boss battle UI */}
+              {mode === "boss" && (
+                <BossBattle
+                  boss={BOSSES.find(b => b.id === boss.bossId) || BOSSES[0]}
+                  currentHp={boss.currentHp}
+                  timeLeft={timeLeft}
+                  maxTime={50}
+                  damageDealt={boss.damageDealt}
+                  isAttacking={boss.isAttacking}
+                  playerEmoji={avatarEmoji}
+                />
+              )}
+              
+              <Problem num1={currentProblem.num1} num2={currentProblem.num2} operator={currentProblem.operator} feedback={feedback} />
+              <AnswerInput onSubmit={submitAnswer} disabled={status !== "playing"} />
               {mode === "practice" && (
-                <motion.button
-                  onClick={() => {
-                    handleGameEnd();
-                    endGame();
-                  }}
-                  className="w-full max-w-sm mx-auto mt-4 flex items-center justify-center gap-2 bg-muted hover:bg-muted/80 text-muted-foreground font-medium py-3 rounded-xl border border-border/50 transition-colors"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
+                <motion.button onClick={() => { handleGameEnd(); endGame(); }} className="w-full max-w-sm mx-auto mt-4 flex items-center justify-center gap-2 bg-muted hover:bg-muted/80 text-muted-foreground font-medium py-3 rounded-xl border border-border/50 transition-colors" initial={{ opacity: 0 }} animate={{ opacity: 1 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Square className="w-4 h-4" />
                   Kết thúc luyện tập
                 </motion.button>
               )}
+            </motion.div>
+          )}
+
+          {status === "gameOver" && mode !== "boss" && (
+            <motion.div key="gameover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} onAnimationStart={handleGameEnd}>
+              <GameOver score={score} highScore={highScore} questionsAnswered={questionsAnswered} maxStreak={maxStreak} grade={grade} mode={mode as "timed" | "practice"} onRestart={handleStartGame} xpEarned={Math.floor((score / 2) * bonuses.xpMultiplier)} playerLevel={player.level} />
+            </motion.div>
+          )}
+
+          {(status === "bossVictory" || status === "bossDefeat") && (
+            <motion.div key="bossresult" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} onAnimationStart={status === "bossVictory" ? handleBossVictory : undefined}>
+              <BossResult boss={BOSSES.find(b => b.id === boss.bossId) || BOSSES[0]} victory={status === "bossVictory"} timeUsed={50 - timeLeft} onContinue={() => startGame("timed")} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default Index;
             </motion.div>
           )}
 
