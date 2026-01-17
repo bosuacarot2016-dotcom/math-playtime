@@ -23,7 +23,7 @@ import { BossBattle, BossSelector, BossResult, BOSSES } from "@/components/game/
 import { Square, Trophy, ShoppingBag, Zap, Coins, Swords } from "lucide-react";
 
 const Index = () => {
-  const { gameState, startGame, startBossBattle, submitAnswer, setGrade, endGame } = useGameLogic();
+  const { gameState, startGame, startBossBattle, submitAnswer, setGrade, endGame, resetToIdle } = useGameLogic();
   const { 
     player, 
     createPlayer, 
@@ -144,6 +144,11 @@ const Index = () => {
       setShowPowerups(true);
     }
     startGame(gameMode);
+  };
+
+  // Handle exit to home
+  const handleExit = () => {
+    resetToIdle();
   };
 
   // Handle boss battle start
@@ -312,7 +317,7 @@ const Index = () => {
                 </motion.button>
               )}
               
-              {mode === "timed" && <EnergyBar current={timeLeft} max={10} label="Năng lượng" />}
+              {mode === "timed" && <EnergyBar current={timeLeft} max={50} label="Năng lượng" />}
               
               {/* Boss battle UI */}
               {mode === "boss" && (
@@ -340,13 +345,13 @@ const Index = () => {
 
           {status === "gameOver" && mode !== "boss" && (
             <motion.div key="gameover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} onAnimationStart={handleGameEnd}>
-              <GameOver score={score} highScore={highScore} questionsAnswered={questionsAnswered} maxStreak={maxStreak} grade={grade} mode={mode as "timed" | "practice"} onRestart={handleStartGame} xpEarned={Math.floor((score / 2) * bonuses.xpMultiplier)} playerLevel={player.level} />
+              <GameOver score={score} highScore={highScore} questionsAnswered={questionsAnswered} maxStreak={maxStreak} grade={grade} mode={mode as "timed" | "practice"} onRestart={handleStartGame} onExit={handleExit} xpEarned={Math.floor((score / 2) * bonuses.xpMultiplier)} playerLevel={player.level} />
             </motion.div>
           )}
 
           {(status === "bossVictory" || status === "bossDefeat") && (
             <motion.div key="bossresult" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} onAnimationStart={status === "bossVictory" ? handleBossVictory : undefined}>
-              <BossResult boss={BOSSES.find(b => b.id === boss.bossId) || BOSSES[0]} victory={status === "bossVictory"} timeUsed={50 - timeLeft} onContinue={() => startGame("timed")} />
+              <BossResult boss={BOSSES.find(b => b.id === boss.bossId) || BOSSES[0]} victory={status === "bossVictory"} timeUsed={50 - timeLeft} onContinue={handleExit} />
             </motion.div>
           )}
         </AnimatePresence>
