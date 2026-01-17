@@ -6,7 +6,7 @@ interface ScoreDisplayProps {
   streak: number;
   highScore: number;
   grade: number;
-  mode: "timed" | "practice";
+  mode: "timed" | "practice" | "boss";
 }
 
 export const ScoreDisplay = ({ score, streak, highScore, mode }: ScoreDisplayProps) => {
