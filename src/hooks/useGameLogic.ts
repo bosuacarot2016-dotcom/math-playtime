@@ -9,9 +9,18 @@ interface Problem {
   answer: number;
 }
 
+interface BossState {
+  bossId: string | null;
+  currentHp: number;
+  maxHp: number;
+  reward: number;
+  isAttacking: boolean;
+  damageDealt: number;
+}
+
 interface GameState {
-  status: "idle" | "playing" | "gameOver";
-  mode: "timed" | "practice";
+  status: "idle" | "playing" | "gameOver" | "bossVictory" | "bossDefeat";
+  mode: "timed" | "practice" | "boss";
   score: number;
   streak: number;
   maxStreak: number;
@@ -21,6 +30,7 @@ interface GameState {
   currentProblem: Problem;
   feedback: "correct" | "wrong" | null;
   grade: number;
+  boss: BossState;
 }
 
 const INITIAL_TIME = 10;
@@ -247,6 +257,8 @@ const generateProblem = (grade: number): Problem => {
   return { num1, num2, operator, answer };
 };
 
+const BOSS_TIME = 50;
+
 export const useGameLogic = () => {
   const [gameState, setGameState] = useState<GameState>(() => {
     const savedHighScore = localStorage.getItem("mathBlitzHighScore");
@@ -264,6 +276,7 @@ export const useGameLogic = () => {
       currentProblem: generateProblem(grade),
       feedback: null,
       grade,
+      boss: { bossId: null, currentHp: 0, maxHp: 0, reward: 0, isAttacking: false, damageDealt: 0 },
     };
   });
 
@@ -288,6 +301,23 @@ export const useGameLogic = () => {
       questionsAnswered: 0,
       currentProblem: generateProblem(prev.grade),
       feedback: null,
+      boss: { bossId: null, currentHp: 0, maxHp: 0, reward: 0, isAttacking: false, damageDealt: 0 },
+    }));
+  }, []);
+
+  const startBossBattle = useCallback((bossId: string, maxHp: number, reward: number) => {
+    setGameState((prev) => ({
+      ...prev,
+      status: "playing",
+      mode: "boss",
+      score: 0,
+      streak: 0,
+      maxStreak: 0,
+      timeLeft: BOSS_TIME,
+      questionsAnswered: 0,
+      currentProblem: generateProblem(prev.grade),
+      feedback: null,
+      boss: { bossId, currentHp: maxHp, maxHp, reward, isAttacking: false, damageDealt: 0 },
     }));
   }, []);
 
@@ -298,10 +328,41 @@ export const useGameLogic = () => {
       const isCorrect = answer === prev.currentProblem.answer;
       const newStreak = isCorrect ? prev.streak + 1 : 0;
       const streakBonus = isCorrect ? Math.floor(prev.streak * STREAK_MULTIPLIER) : 0;
-      const gradeBonus = isCorrect ? prev.grade : 0; // Bonus points for higher grades
+      const gradeBonus = isCorrect ? prev.grade : 0;
       const basePoints = isCorrect ? 10 : 0;
       const newScore = prev.score + basePoints + streakBonus + gradeBonus;
       const newMaxStreak = Math.max(prev.maxStreak, newStreak);
+
+      // Boss mode logic
+      if (prev.mode === "boss" && isCorrect) {
+        const damage = 1 + Math.floor(prev.streak / 3);
+        const newBossHp = Math.max(0, prev.boss.currentHp - damage);
+        
+        if (newBossHp <= 0) {
+          return {
+            ...prev,
+            status: "bossVictory",
+            score: newScore,
+            streak: newStreak,
+            maxStreak: newMaxStreak,
+            questionsAnswered: prev.questionsAnswered + 1,
+            feedback: "correct",
+            boss: { ...prev.boss, currentHp: 0, isAttacking: true, damageDealt: damage },
+          };
+        }
+        
+        return {
+          ...prev,
+          score: newScore,
+          streak: newStreak,
+          maxStreak: newMaxStreak,
+          questionsAnswered: prev.questionsAnswered + 1,
+          currentProblem: generateProblem(prev.grade),
+          feedback: "correct",
+          boss: { ...prev.boss, currentHp: newBossHp, isAttacking: true, damageDealt: damage },
+        };
+      }
+
       const newTimeLeft = isCorrect
         ? Math.min(prev.timeLeft + TIME_BONUS, INITIAL_TIME)
         : prev.timeLeft;
@@ -355,11 +416,25 @@ export const useGameLogic = () => {
     if (gameState.status === "playing" && gameState.mode === "timed" && gameState.timeLeft <= 0) {
       endGame();
     }
+    if (gameState.status === "playing" && gameState.mode === "boss" && gameState.timeLeft <= 0) {
+      setGameState((prev) => ({ ...prev, status: "bossDefeat" }));
+    }
   }, [gameState.timeLeft, gameState.status, gameState.mode, endGame]);
+
+  // Reset boss attack animation
+  useEffect(() => {
+    if (gameState.boss.isAttacking) {
+      const timer = setTimeout(() => {
+        setGameState((prev) => ({ ...prev, boss: { ...prev.boss, isAttacking: false } }));
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.boss.isAttacking]);
 
   return {
     gameState,
     startGame,
+    startBossBattle,
     submitAnswer,
     setGrade,
     endGame,
