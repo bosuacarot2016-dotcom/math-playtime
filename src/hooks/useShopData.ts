@@ -234,6 +234,23 @@ export const useShopData = () => {
     setShopState((prev) => ({ ...prev, activePowerups: [] }));
   }, []);
 
+  // Grant an item for free (e.g., from lucky wheel)
+  const grantItem = useCallback((itemId: string) => {
+    setShopState((prev) => {
+      const existingItem = prev.ownedItems.find((i) => i.itemId === itemId);
+      const newOwnedItems = existingItem
+        ? prev.ownedItems.map((i) =>
+            i.itemId === itemId ? { ...i, quantity: i.quantity + 1 } : i
+          )
+        : [...prev.ownedItems, { itemId, quantity: 1 }];
+
+      return {
+        ...prev,
+        ownedItems: newOwnedItems,
+      };
+    });
+  }, []);
+
   const getItemQuantity = useCallback(
     (itemId: string): number => {
       const item = shopState.ownedItems.find((i) => i.itemId === itemId);
@@ -263,6 +280,7 @@ export const useShopData = () => {
     equipPet,
     useItem,
     clearActivePowerups,
+    grantItem,
     getItemQuantity,
     getEquippedPet,
     getActivePowerupEffects,
