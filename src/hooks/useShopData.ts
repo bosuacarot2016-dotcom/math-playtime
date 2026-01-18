@@ -253,48 +253,11 @@ export const useShopData = () => {
       .filter(Boolean);
   }, [shopState.activePowerups]);
 
-  const spendCoins = useCallback((amount: number): boolean => {
-    if (shopState.coins < amount) return false;
-    setShopState((prev) => ({
-      ...prev,
-      coins: prev.coins - amount,
-    }));
-    return true;
-  }, [shopState.coins]);
-
-  const addItem = useCallback((itemId: string) => {
-    setShopState((prev) => {
-      const existingItem = prev.ownedItems.find((i) => i.itemId === itemId);
-      const newOwnedItems = existingItem
-        ? prev.ownedItems.map((i) =>
-            i.itemId === itemId ? { ...i, quantity: i.quantity + 1 } : i
-          )
-        : [...prev.ownedItems, { itemId, quantity: 1 }];
-
-      return {
-        ...prev,
-        ownedItems: newOwnedItems,
-      };
-    });
-  }, []);
-
-  const addPet = useCallback((petId: string) => {
-    if (shopState.ownedPets.includes(petId)) return;
-    setShopState((prev) => ({
-      ...prev,
-      ownedPets: [...prev.ownedPets, petId],
-      equippedPet: prev.equippedPet || petId,
-    }));
-  }, [shopState.ownedPets]);
-
   return {
     shopState,
     shopItems: SHOP_ITEMS,
     pets: PETS,
     addCoins,
-    spendCoins,
-    addItem,
-    addPet,
     buyItem,
     buyPet,
     equipPet,

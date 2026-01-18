@@ -20,8 +20,7 @@ import { PowerupSelector } from "@/components/game/PowerupSelector";
 import { ActivePowerups } from "@/components/game/ActivePowerups";
 import { PetDisplay } from "@/components/game/PetDisplay";
 import { BossBattle, BossSelector, BossResult, BOSSES } from "@/components/game/BossBattle";
-import { LuckyWheel, type WheelSegment } from "@/components/game/LuckyWheel";
-import { Square, Trophy, ShoppingBag, Zap, Coins, Swords, Gift } from "lucide-react";
+import { Square, Trophy, ShoppingBag, Zap, Coins, Swords } from "lucide-react";
 
 const Index = () => {
   const { gameState, startGame, startBossBattle, submitAnswer, setGrade, endGame, resetToIdle } = useGameLogic();
@@ -42,9 +41,6 @@ const Index = () => {
     shopItems,
     pets,
     addCoins,
-    spendCoins,
-    addItem,
-    addPet,
     buyItem,
     buyPet,
     equipPet,
@@ -57,7 +53,6 @@ const Index = () => {
   const [showShop, setShowShop] = useState(false);
   const [showPowerups, setShowPowerups] = useState(false);
   const [showBossSelector, setShowBossSelector] = useState(false);
-  const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>(() => {
     const saved = localStorage.getItem("defeatedBosses");
     return saved ? JSON.parse(saved) : [];
@@ -221,38 +216,6 @@ const Index = () => {
         onUseItem={useItem}
       />
 
-      {/* Lucky Wheel */}
-      <LuckyWheel
-        isOpen={showLuckyWheel}
-        onClose={() => setShowLuckyWheel(false)}
-        spinCost={30}
-        playerCoins={shopState.coins}
-        onSpinCost={() => spendCoins(30)}
-        onReward={(segment: WheelSegment) => {
-          switch (segment.type) {
-            case "coins":
-              addCoins(segment.value as number);
-              break;
-            case "xp":
-              addXp(segment.value as number);
-              break;
-            case "item":
-              addItem(segment.value as string);
-              break;
-            case "pet":
-              // Give random pet
-              const unownedPets = pets.filter(p => !shopState.ownedPets.includes(p.id));
-              if (unownedPets.length > 0) {
-                const randomPet = unownedPets[Math.floor(Math.random() * unownedPets.length)];
-                addPet(randomPet.id);
-              } else {
-                addCoins(300); // Give coins if all pets owned
-              }
-              break;
-          }
-        }}
-      />
-
       <div className="w-full max-w-lg mx-auto flex-1 flex flex-col relative z-10">
         {/* Player header - always visible except during character creation */}
         {status !== "playing" && (
@@ -275,11 +238,6 @@ const Index = () => {
               <Coins className="w-4 h-4" />
               <span className="text-sm font-bold">{shopState.coins}</span>
             </motion.div>
-            
-            <motion.button onClick={() => setShowLuckyWheel(true)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500/20 to-yellow-500/20 text-pink-400 px-4 py-2 rounded-xl border border-pink-500/30 hover:border-pink-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Gift className="w-4 h-4" />
-              <span className="text-sm font-medium">Quay số</span>
-            </motion.button>
             
             <motion.button onClick={() => setShowBossSelector(true)} className="flex items-center gap-2 bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-400 px-4 py-2 rounded-xl border border-red-500/30 hover:border-red-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Swords className="w-4 h-4" />
