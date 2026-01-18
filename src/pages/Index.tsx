@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGameLogic } from "@/hooks/useGameLogic";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useShopData } from "@/hooks/useShopData";
@@ -20,7 +20,8 @@ import { PowerupSelector } from "@/components/game/PowerupSelector";
 import { ActivePowerups } from "@/components/game/ActivePowerups";
 import { PetDisplay } from "@/components/game/PetDisplay";
 import { BossBattle, BossSelector, BossResult, BOSSES } from "@/components/game/BossBattle";
-import { Square, Trophy, ShoppingBag, Zap, Coins, Swords } from "lucide-react";
+import { LuckyWheel, Prize } from "@/components/game/LuckyWheel";
+import { Square, Trophy, ShoppingBag, Zap, Coins, Swords, Gift } from "lucide-react";
 
 const Index = () => {
   const { gameState, startGame, startBossBattle, submitAnswer, setGrade, endGame, resetToIdle } = useGameLogic();
@@ -46,6 +47,7 @@ const Index = () => {
     equipPet,
     useItem,
     clearActivePowerups,
+    grantItem,
     getEquippedPet,
   } = useShopData();
   
@@ -53,12 +55,22 @@ const Index = () => {
   const [showShop, setShowShop] = useState(false);
   const [showPowerups, setShowPowerups] = useState(false);
   const [showBossSelector, setShowBossSelector] = useState(false);
+  const [showLuckyWheel, setShowLuckyWheel] = useState(false);
+  const [freeSpins, setFreeSpins] = useState<number>(() => {
+    const saved = localStorage.getItem("freeSpins");
+    return saved ? parseInt(saved) : 3; // Start with 3 free spins
+  });
   const [defeatedBosses, setDefeatedBosses] = useState<string[]>(() => {
     const saved = localStorage.getItem("defeatedBosses");
     return saved ? JSON.parse(saved) : [];
   });
   
   const { status, mode, score, streak, highScore, timeLeft, currentProblem, feedback, questionsAnswered, maxStreak, grade, boss } = gameState;
+
+  // Save free spins to localStorage
+  useEffect(() => {
+    localStorage.setItem("freeSpins", freeSpins.toString());
+  }, [freeSpins]);
 
   // Get avatar emoji
   const avatarEmoji = avatars.find(a => a.id === player.avatarId)?.emoji || "🧙‍♂️";
@@ -129,12 +141,34 @@ const Index = () => {
     if (currentBoss) {
       addCoins(currentBoss.reward);
       addXp(Math.floor(currentBoss.reward / 2));
+      setFreeSpins(prev => prev + 1); // Reward 1 free spin for boss victory
       if (!defeatedBosses.includes(currentBoss.id)) {
         const newDefeated = [...defeatedBosses, currentBoss.id];
         setDefeatedBosses(newDefeated);
         localStorage.setItem("defeatedBosses", JSON.stringify(newDefeated));
       }
     }
+  };
+
+  // Handle lucky wheel prize
+  const handleWheelPrize = (prize: Prize) => {
+    switch (prize.type) {
+      case "coins":
+        addCoins(prize.value as number);
+        break;
+      case "xp":
+        addXp(prize.value as number);
+        break;
+      case "powerup":
+        // Add powerup to inventory for free
+        const itemId = prize.value === "time_plus" ? "time_boost" : "combo_shield";
+        grantItem(itemId);
+        break;
+    }
+  };
+
+  const handleUseSpin = () => {
+    setFreeSpins(prev => Math.max(0, prev - 1));
   };
 
   // Handle starting game
@@ -216,6 +250,19 @@ const Index = () => {
         onUseItem={useItem}
       />
 
+      {/* Lucky Wheel */}
+      <AnimatePresence>
+        {showLuckyWheel && (
+          <LuckyWheel
+            isOpen={showLuckyWheel}
+            onClose={() => setShowLuckyWheel(false)}
+            freeSpins={freeSpins}
+            onSpin={handleWheelPrize}
+            onUseSpin={handleUseSpin}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="w-full max-w-lg mx-auto flex-1 flex flex-col relative z-10">
         {/* Player header - always visible except during character creation */}
         {status !== "playing" && (
@@ -242,6 +289,16 @@ const Index = () => {
             <motion.button onClick={() => setShowBossSelector(true)} className="flex items-center gap-2 bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-400 px-4 py-2 rounded-xl border border-red-500/30 hover:border-red-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Swords className="w-4 h-4" />
               <span className="text-sm font-medium">Boss</span>
+            </motion.button>
+            
+            <motion.button onClick={() => setShowLuckyWheel(true)} className="relative flex items-center gap-2 bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-400 px-4 py-2 rounded-xl border border-pink-500/30 hover:border-pink-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Gift className="w-4 h-4" />
+              <span className="text-sm font-medium">Quay</span>
+              {freeSpins > 0 && (
+                <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                  {freeSpins}
+                </span>
+              )}
             </motion.button>
             
             <motion.button onClick={() => setShowShop(true)} className="flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-4 py-2 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
