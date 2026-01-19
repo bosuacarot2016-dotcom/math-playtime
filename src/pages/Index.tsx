@@ -1,8 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGameLogic } from "@/hooks/useGameLogic";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useShopData } from "@/hooks/useShopData";
+import { useAuth } from "@/hooks/useAuth";
 import { CharacterCreation } from "@/components/game/CharacterCreation";
 import { StartScreen } from "@/components/game/StartScreen";
 import { ScoreDisplay } from "@/components/game/ScoreDisplay";
@@ -21,9 +23,11 @@ import { ActivePowerups } from "@/components/game/ActivePowerups";
 import { PetDisplay } from "@/components/game/PetDisplay";
 import { BossBattle, BossSelector, BossResult, BOSSES } from "@/components/game/BossBattle";
 import { LuckyWheel, Prize } from "@/components/game/LuckyWheel";
-import { Square, Trophy, ShoppingBag, Zap, Coins, Swords, Gift } from "lucide-react";
+import { Square, Trophy, ShoppingBag, Zap, Coins, Swords, Gift, LogIn, LogOut, User } from "lucide-react";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading, signOut } = useAuth();
   const { gameState, startGame, startBossBattle, submitAnswer, setGrade, endGame, resetToIdle } = useGameLogic();
   const { 
     player, 
@@ -281,6 +285,31 @@ const Index = () => {
         {/* Action buttons */}
         {status === "idle" && (
           <div className="flex items-center justify-end gap-2 mb-4 flex-wrap">
+            {/* Auth button */}
+            {!authLoading && (
+              user ? (
+                <motion.button
+                  onClick={() => signOut()}
+                  className="flex items-center gap-2 bg-gradient-to-r from-slate-500/20 to-gray-500/20 text-slate-300 px-4 py-2 rounded-xl border border-slate-500/30 hover:border-slate-500/50 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="text-sm font-medium">Thoát</span>
+                </motion.button>
+              ) : (
+                <motion.button
+                  onClick={() => navigate('/auth')}
+                  className="flex items-center gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 px-4 py-2 rounded-xl border border-green-500/30 hover:border-green-500/50 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span className="text-sm font-medium">Đăng nhập</span>
+                </motion.button>
+              )
+            )}
+            
             <motion.div className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-3 py-2 rounded-xl border border-yellow-500/30" whileHover={{ scale: 1.05 }}>
               <Coins className="w-4 h-4" />
               <span className="text-sm font-bold">{shopState.coins}</span>
