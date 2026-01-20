@@ -23,7 +23,8 @@ import { ActivePowerups } from "@/components/game/ActivePowerups";
 import { PetDisplay } from "@/components/game/PetDisplay";
 import { BossBattle, BossSelector, BossResult, BOSSES } from "@/components/game/BossBattle";
 import { LuckyWheel, Prize } from "@/components/game/LuckyWheel";
-import { Square, Trophy, ShoppingBag, Zap, Coins, Swords, Gift, LogIn, LogOut, User } from "lucide-react";
+import { Leaderboard } from "@/components/game/Leaderboard";
+import { Square, Trophy, ShoppingBag, Zap, Coins, Swords, Gift, LogIn, LogOut, User, Medal } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -60,6 +61,7 @@ const Index = () => {
   const [showPowerups, setShowPowerups] = useState(false);
   const [showBossSelector, setShowBossSelector] = useState(false);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [freeSpins, setFreeSpins] = useState<number>(() => {
     const saved = localStorage.getItem("freeSpins");
     return saved ? parseInt(saved) : 3; // Start with 3 free spins
@@ -267,6 +269,14 @@ const Index = () => {
         )}
       </AnimatePresence>
 
+      {/* Leaderboard */}
+      <Leaderboard
+        isOpen={showLeaderboard}
+        onClose={() => setShowLeaderboard(false)}
+        currentUserId={user?.id}
+        avatars={avatars}
+      />
+
       <div className="w-full max-w-lg mx-auto flex-1 flex flex-col relative z-10">
         {/* Player header - always visible except during character creation */}
         {status !== "playing" && (
@@ -333,6 +343,11 @@ const Index = () => {
             <motion.button onClick={() => setShowShop(true)} className="flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-4 py-2 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <ShoppingBag className="w-4 h-4" />
               <span className="text-sm font-medium">Cửa hàng</span>
+            </motion.button>
+            
+            <motion.button onClick={() => setShowLeaderboard(true)} className="flex items-center gap-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 px-4 py-2 rounded-xl border border-cyan-500/30 hover:border-cyan-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Medal className="w-4 h-4" />
+              <span className="text-sm font-medium">Xếp hạng</span>
             </motion.button>
             
             <motion.button onClick={() => setShowAchievements(true)} className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-4 py-2 rounded-xl border border-yellow-500/30 hover:border-yellow-500/50 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
